@@ -1,0 +1,18 @@
+<%- include('./includes/head.ejs') %>
+</head>
+
+<body class="container">
+    <!-- navbar -->
+    <%- include('./includes/navigation.ejs') %>
+    <main>
+        <form action="/admin/add-product" method="POST">
+            <div class="form-group m-4">
+                <label for="product-name" class="pb-2">Product name</label>
+                <input type="text" class="form-control" name="product-name" id="product-name"
+                    placeholder="Enter product name">
+            </div>
+            <button type="submit" class="btn btn-primary m-4">Submit</button>
+        </form>
+    </main>
+
+    <%- include('./includes/end.ejs') %>
