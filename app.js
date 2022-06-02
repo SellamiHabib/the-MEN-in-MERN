@@ -2,9 +2,10 @@ const express = require('express');
 const path = require('path');
 
 const bodyParser = require('body-parser');
-const admin = require('./routes/admin');
+
+const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/shop');
-const rootDir = require('./util/path');
+const errorController = require('./controllers/errors');
 
 const app = express();
 const port = 3000;
@@ -18,14 +19,8 @@ app.use(bodyParser.urlencoded({
     extended: false
 }))
 
-
-app.use('/admin', admin.routes);
+app.use('/admin', adminRoutes);
 app.use(userRoutes);
+app.use(errorController.get404Page)
 
-app.use((req, res, next) => {
-    res.status(404).render('404', {
-        title: "Woops",
-        path:''
-    });
-})
 app.listen(port);
