@@ -18,9 +18,13 @@
                     <div class="card-body">
                         <h5 class="card-title"><%= product.title %></h5>
                         <p class="card-text"><%= product.description %></p>
-                        <p class="card-text"><%= product.price %></p>
-                        <a href="#" class="btn btn-primary">Edit item</a>
-                        <a href="#" class="btn btn-danger">Delete</a>
+                        <p class="card-text"><%= product.price %> $</p>
+                        <a href="/admin/EditProduct/id" class="btn btn-primary mb-3">Edit item</a>
+
+                        <form action="/admin/deleteProduct/id" method="POST">
+                            <button class="btn btn-danger" type="submit" name="deleteProduct">Delete</button>
+                        </form>
+
                     </div>
                 </div>
             <% }); %>

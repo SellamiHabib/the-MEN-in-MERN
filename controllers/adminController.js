@@ -37,6 +37,10 @@ module.exports.getEditProductPage = (req, res) => {
 }
 
 module.exports.postEditProductPage = (req, res) => {
-    // logic
+    // edit logic
+    res.redirect('/admin/adminProducts');
+}
+module.exports.postDeleteProductPage = (req, res) => {
+    // delete logic
     res.redirect('/admin/adminProducts');
 }

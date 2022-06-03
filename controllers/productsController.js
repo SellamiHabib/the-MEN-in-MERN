@@ -33,6 +33,10 @@ module.exports.getCartPage = (req, res) => {
         // cart: cart,
      })
 }
+module.exports.postAddToCartPage = (req, res) => {
+    // Add to cart logic
+    res.redirect('/');
+}
 module.exports.getCheckoutPage = (req, res) => {
      res.render('shop/checkout', {
          title: 'Checkout',
