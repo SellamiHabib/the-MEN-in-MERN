@@ -1,0 +1,35 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+<!-- navbar -->
+<%- include('../includes/navbar.ejs') %>
+
+<main class="container m-5 ">
+    <% if (products.length > 0) { %>
+
+        <h1 class="row mb-5">Available products, edit as per wish, I AM THE ADMIN</h1>
+        <div class="row ">
+            <% products.forEach(product => { %>
+                <div class="card col-4 text-center">
+                    <img class="card-img-top" src="<%= product.imageURL %>"
+                         height="180"
+                         width="243" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= product.title %></h5>
+                        <p class="card-text"><%= product.description %></p>
+                        <p class="card-text"><%= product.price %></p>
+                        <a href="#" class="btn btn-primary">Edit item</a>
+                        <a href="#" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+    <% } else { %>
+        <h1>I mean, you're the one who's supposed to add items</h1>
+
+    <% } %>
+</main>
+
+<%- include('../includes/end.ejs') %>
