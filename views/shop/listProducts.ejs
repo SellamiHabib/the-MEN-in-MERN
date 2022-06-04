@@ -18,8 +18,16 @@
                         <h5 class="card-title"><%= product.title %></h5>
                         <p class="card-text"><%= product.description %></p>
                         <p class="card-text"><%= product.price %> $</p>
-                        <form action="/cart"></form>
-                        <a href="#" class="btn btn-danger">Add to cart</a>
+                        <div class="d-flex justify-content-around">
+                            <a href="/products/<%= product.id %>" class="btn btn-danger">Details</a>
+                            <form action="/addToCart" method="POST">
+                                <button type="submit" class="btn btn-danger">Add to cart</button>
+                                <input type="hidden" name="productID" value="<%= product.id %>">
+                                <input type="hidden" name="price" value="<%= product.price %>">
+                            </form>
+
+                        </div>
+
                     </div>
                 </div>
             <% }); %>

@@ -15,6 +15,7 @@ const getAllDataFromFile = (callback) => {
 
 module.exports = class Product {
     constructor(title, imageURL, description, price) {
+        this.id = Math.floor(Math.random() * 1000).toString();
         this.title = title;
         this.imageURL = imageURL;
         this.description = description;
@@ -36,5 +37,12 @@ module.exports = class Product {
 
     static fetchAll(callback) {
         getAllDataFromFile(callback);
+    }
+
+    static fetchProductById(id, callback) {
+        getAllDataFromFile(products => {
+            const product = products.find(product => product.id === id);
+            return callback(product);
+        })
     }
 }
