@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js && xdg-open http://localhost:3000"
+    "start": "nodemon app.js && echo 'http://localhost:3000'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "kill-port": "^2.0.0",
     "nodemon": "^2.0.16"
   },
   "dependencies": {
