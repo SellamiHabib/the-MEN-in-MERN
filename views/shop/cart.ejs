@@ -1,12 +1,29 @@
 <%- include('../includes/head.ejs') %>
 </head>
-
 <body>
-
 <!-- navbar -->
 <%- include('../includes/navbar.ejs') %>
-
-<main class="m-5">
-This is cart
+<main class="m-5 row ">
+    <% if (cart.length === 0)  { %>
+        <h1>Your cart is empty, start shopping!</h1>
+    <% } else { %>
+            <% cart.forEach(item => { %>
+                <div class="card col-4 text-center">
+                    <img class="card-img-top" src="<%= item.productData.imageURL %>"
+                         height="180"
+                         width="243" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= item.productData.name %></h5>
+                        <p class="card-text"><%= item.productData.description %></p>
+                        <p class="card-text"><%= item.productData.price %> $</p>
+                        <p class="card-text">Quantity : <%= item.qty %> </p>
+                        <form action="/cart/deleteProduct" method="POST">
+                            <button class="btn btn-danger" type="submit" name="deleteCartProduct">Delete</button>
+                            <input type="hidden" name="productID" value="<%= item.productData.id %>">
+                        </form>
+                    </div>
+                </div>
+        </div>
+    <% } )} %>
 </main>
 <%- include('../includes/end.ejs') %>

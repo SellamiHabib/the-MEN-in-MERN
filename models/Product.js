@@ -9,7 +9,7 @@ const getAllDataFromFile = (callback) => {
         if (err) {
             return callback([]);
         }
-        callback(JSON.parse(fileContent));
+        callback(JSON.parse(fileContent.toString()));
     });
 }
 
@@ -24,15 +24,10 @@ module.exports = class Product {
     }
 
     addProduct() {
-
         getAllDataFromFile(products => {
             products.push(this);
-            fs.writeFile(productsDataFile, JSON.stringify(products, null, '\t'), (err, result) => {
-                if (err) console.log(err.message);
-            });
+            fs.writeFile(productsDataFile, JSON.stringify(products, null, '\t'), err => console.log(err));
         })
-
-
     }
 
     static fetchAll(callback) {
