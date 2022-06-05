@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/shop');
 const errorController = require('./controllers/errors');
+const db = require('./util/database');
 
 const app = express();
 const port = 3000;
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({
     extended: false
 }))
+
 
 app.use('/admin', adminRoutes);
 app.use(userRoutes);

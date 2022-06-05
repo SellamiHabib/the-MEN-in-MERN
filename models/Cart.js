@@ -10,8 +10,7 @@ module.exports = class Cart {
     static addProduct(productID, price) {
         fs.readFile(cartDataFile, (err, contentFile) => {
             let cart = {
-                products: [],
-                price: 0
+                products: [], price: 0
             };
             if (!err) {
                 cart = JSON.parse(contentFile);
@@ -46,11 +45,14 @@ module.exports = class Cart {
         let newCart = {};
         Cart.fetchAllCartItems(cart => {
             const productIndex = cart.products.findIndex(p => p.id === id);
-            Product.fetchProductById(id, product => {
-                cart.products.splice(productIndex, 1);
-                cart.price = (+cart.price - +product.price * +cart.products.qty);
-                fs.writeFile(cartDataFile, JSON.stringify(cart,null,'\t'), err => console.log(err));
-            })
+            Product.fetchProductById(productID)
+                .then(([product,metaData]) => {
+                    product = product[0];
+                    cart.products.splice(productIndex, 1);
+                    cart.price = (+cart.price - +product.price * +cart.products.qty);
+                    fs.writeFile(cartDataFile, JSON.stringify(cart, null, '\t'), err => console.log(err));
+                })
+                .catch(err => console.log(err));
         })
     }
 }

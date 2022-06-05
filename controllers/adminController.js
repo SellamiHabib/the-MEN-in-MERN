@@ -5,13 +5,17 @@ const path = require('path');
 const Product = require('../models/Product');
 
 module.exports.getAdminProductsPage = (req, res) => {
-    Product.fetchAll(products => {
-        res.render('admin/adminProducts', {
-            title: 'Admin Products',
-            path: '/admin/adminProducts',
-            products: products,
+    Product.fetchAll()
+        .then(([products, metaData]) => {
+            res.render('admin/adminProducts', {
+                title: 'Admin Products',
+                path: '/admin/adminProducts',
+                products: products,
+            })
         })
-    })
+        .catch(err => {
+            console.log(err)
+        })
 }
 
 module.exports.getAddProductPage = (req, res) => {
@@ -33,13 +37,16 @@ module.exports.postAddProductPage = (req, res) => {
 
 module.exports.getEditProductPage = (req, res) => {
     const productID = req.query.id;
-    Product.fetchProductById(productID, product => {
-        res.render('admin/editProduct', {
-            title: product.name,
-            path: '/admin/editProduct',
-            product: product
+    Product.fetchProductById(productID)
+        .then(([product,metaData]) => {
+            product = product[0];
+            res.render('admin/editProduct', {
+                title: product.name,
+                path: '/admin/editProduct',
+                product: product
+            })
         })
-    })
+        .catch(err => console.log(err))
 
 }
 
