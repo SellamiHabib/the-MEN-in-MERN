@@ -7,23 +7,27 @@
     <% if (cart.length === 0)  { %>
         <h1>Your cart is empty, start shopping!</h1>
     <% } else { %>
-            <% cart.forEach(item => { %>
-                <div class="card col-4 text-center">
-                    <img class="card-img-top" src="<%= item.productData.imageURL %>"
-                         height="180"
-                         width="243" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title"><%= item.productData.name %></h5>
-                        <p class="card-text"><%= item.productData.description %></p>
-                        <p class="card-text"><%= item.productData.price %> $</p>
-                        <p class="card-text">Quantity : <%= item.qty %> </p>
-                        <form action="/cart/deleteProduct" method="POST">
-                            <button class="btn btn-danger" type="submit" name="deleteCartProduct">Delete</button>
-                            <input type="hidden" name="productID" value="<%= item.productData.id %>">
-                        </form>
-                    </div>
+        <% cart.forEach(product => { %>
+            <div class="card col-4 text-center">
+                <img class="card-img-top" src="<%= product.imageURL %>"
+                     height="180"
+                     width="243" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title"><%= product.name %></h5>
+                    <p class="card-text"><%= product.description %></p>
+                    <p class="card-text"><%= product.price %> $</p>
+                    <p class="card-text">Quantity : <%= product.Cart_Product.qty %> </p>
+                    <form action="/cart/deleteProduct" method="POST">
+                        <button class="btn btn-danger" type="submit" name="deleteCartProduct">Delete</button>
+                        <input type="hidden" name="productID" value="<%= product.id %>">
+                    </form>
                 </div>
-        </div>
-    <% } )} %>
+            </div>
+        <% }) %>
+        <form action="/orders" method="POST" class="text-center m-4">
+            <button class="btn btn-success " type="submit" name="addOrder" >Add Order</button>
+            <input type="hidden" name="cartID" value="<%= cart.id %>">
+        </form>
+    <% } %>
 </main>
 <%- include('../includes/end.ejs') %>

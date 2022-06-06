@@ -1,8 +1,7 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 
 const Product = require('../models/Product');
+const User = require('../models/User');
 
 module.exports.getAdminProductsPage = (req, res) => {
     Product.findAll()
@@ -17,6 +16,7 @@ module.exports.getAdminProductsPage = (req, res) => {
 }
 
 module.exports.getAddProductPage = (req, res) => {
+    console.log(req.User)
     res.render('admin/addProduct', {
         title: 'Add a product',
         path: '/admin/addProduct'
@@ -27,16 +27,17 @@ module.exports.postAddProductPage = (req, res) => {
     const imageURL = req.body['product-imageURL'];
     const description = req.body['product-description'];
     const price = req.body['product-price'];
-    Product.create({
-        name: name,
-        imageURL: imageURL,
-        description: description,
-        price: price,
-    })
+
+   Product.create(
+        {
+            name: name,
+            imageURL: imageURL,
+            description: description,
+            price: price,
+        })
         .then(() => res.redirect('/admin/adminProducts'))
         .catch(err => console.log(err));
 }
-
 module.exports.getEditProductPage = (req, res) => {
     const productID = req.query.id;
     Product.findByPk(productID)
@@ -75,7 +76,6 @@ module.exports.postDeleteProductPage = (req, res) => {
         .then(p => {
             p.destroy()
                 .then(() => {
-
                     res.redirect('/admin/adminProducts');
                 })
                 .catch(err => console.log(err));
