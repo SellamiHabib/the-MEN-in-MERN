@@ -1,61 +1,51 @@
-const fs = require('fs');
-const path = require('path');
-
-const rootDir = require('../util/path');
-const productsDataFile = path.join(rootDir, 'data', 'allProducts.json');
-
-const getAllDataFromFile = (callback) => {
-    fs.readFile(productsDataFile, (err, fileContent) => {
-        if (err) {
-            return callback([]);
-        }
-        callback(JSON.parse(fileContent.toString()));
-    });
-}
+const mongodb = require('mongodb');
+const getDb = require('../util/database').getDb;
 
 module.exports = class Product {
     constructor(name, imageURL, description, price) {
-        this.id = Math.floor(Math.random() * 1000).toString();
         this.name = name
         this.imageURL = imageURL;
         this.description = description;
         this.price = price;
-        this.addProduct();
+        this.saveProduct();
     }
 
-    addProduct() {
-        getAllDataFromFile(products => {
-            products.push(this);
-            fs.writeFile(productsDataFile, JSON.stringify(products, null, '\t'), err => console.log(err));
-        })
+    saveProduct() {
+        const db = getDb();
+        db.collection('products').insertOne(this)
+            .then(result => console.log(result))
+            .catch(err => console.log(err));
     }
 
-    static fetchAll(callback) {
-        getAllDataFromFile(callback);
+    static fetchAll() {
+        const db = getDb();
+        return db.collection('products')
+            .find()
+            .toArray()
     }
 
-    static fetchProductById(id, callback) {
-        getAllDataFromFile(products => {
-            const product = products.find(product => product.id === id);
-            return callback(product);
-        })
+    static fetchProductById(id) {
+        const db = getDb();
+        return db.collection('products')
+            .findOne({_id: new mongodb.ObjectId(id)});
     }
 
     static updateProduct(id, name, imageURL, description, price) {
-        Product.fetchAll(products => {
-            const productIndex = products.findIndex(product => product.id === id);
-            products[productIndex].name = name;
-            products[productIndex].imageURL = imageURL;
-            products[productIndex].description = description;
-            products[productIndex].price = price;
-            fs.writeFile(productsDataFile, JSON.stringify(products, null, '\t'), err => console.log(err));
-        })
+        const db = getDb();
+        return db.collection('products')
+            .updateOne({_id: new mongodb.ObjectId(id)}, {
+                $set: {
+                    name: name,
+                    imageURL: imageURL,
+                    description: description,
+                    price: price
+                }
+            })
     }
 
     static deleteProduct(id) {
-        Product.fetchAll(products => {
-            const newProducts = products.filter((product) => product.id !== id)
-            fs.writeFile(productsDataFile, JSON.stringify(newProducts, null, '\t'), err => console.log(err));
-        })
+        const db = getDb();
+        return db.collection('products').deleteOne({_id: new mongodb.ObjectId(id)})
     }
+
 }

@@ -19,10 +19,10 @@
                         <p class="card-text"><%= product.description %></p>
                         <p class="card-text"><%= product.price %> $</p>
                         <div class="d-flex justify-content-around">
-                            <a href="/products/<%= product.id %>" class="btn btn-danger">Details</a>
+                            <a href="/products/<%= product._id %>" class="btn btn-danger">Details</a>
                             <form action="/addToCart" method="POST">
                                 <button type="submit" class="btn btn-danger">Add to cart</button>
-                                <input type="hidden" name="productID" value="<%= product.id %>">
+                                <input type="hidden" name="productID" value="<%= product._id %>">
                                 <input type="hidden" name="price" value="<%= product.price %>">
                             </form>
                         </div>

@@ -9,7 +9,7 @@
     <form action="/admin/editProduct" method="POST">
         <div class="form-group m-4">
 
-            <input type="hidden" name="id" value="<%= product.id %>">
+            <input type="hidden" name="id" value="<%= product._id %>">
             <label for="product-name" class="mt-3 mb-2">Product name</label>
             <input type="text" class="form-control" name="product-name" id="product-name" value="<%= product.name %>">
 

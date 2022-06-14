@@ -2,45 +2,50 @@ const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 
 module.exports.getShopPage = (req, res) => {
-    Product.fetchAll((products) => {
-        if (products.length == 0) {
-            return res.render('404', {
-                title: "No products found",
+    Product.fetchAll()
+        .then(products => {
+            if (products.length === 0) {
+                return res.render('404', {
+                    title: "No products found",
+                    path: '/'
+                });
+            }
+            res.render('shop/index', {
+                products: products,
+                title: "Product List",
                 path: '/'
-            });
-        }
-        res.render('shop/index', {
-            products: products,
-            title: "Product List",
-            path: '/'
+            })
         })
-    });
+        .catch(err => console.log(err))
 }
 
 module.exports.getProductsPage = (req, res) => {
-    Product.fetchAll(products => {
-        res.render('shop/listProducts', {
-            products: products,
-            title: 'List of products',
-            path: '/products'
+    Product.fetchAll()
+        .then(products => {
+            res.render('shop/listProducts', {
+                products: products,
+                title: 'List of products',
+                path: '/products'
+            })
         })
-    })
+        .catch(err => console.log(err))
 }
 
 module.exports.getProductDetailsPage = (req, res) => {
     const productID = req.params.id;
-
-    Product.fetchProductById(productID, product => {
-        if (!product) {
-            res.redirect('/');
-        }
-        res.render('shop/productDetails', {
-            title: product.title,
-            path: '/products',
-            product: product,
-        });
-    });
-
+    Product.fetchProductById(productID)
+        .then(product => {
+            if (!product) {
+                return res.redirect('/');
+            }
+            console.log(product);
+            return res.render('shop/productDetails', {
+                title: product.name,
+                path: '/products',
+                product: product,
+            });
+        })
+        .catch(err => console.log(err))
 }
 module.exports.getCartPage = (req, res) => {
     Cart.fetchAllCartItems(cart => {
