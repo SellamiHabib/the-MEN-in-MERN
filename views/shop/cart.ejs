@@ -9,17 +9,17 @@
     <% } else { %>
             <% cart.forEach(item => { %>
                 <div class="card col-4 text-center">
-                    <img class="card-img-top" src="<%= item.productData.imageURL %>"
+                    <img class="card-img-top" src="<%= item.imageURL %>"
                          height="180"
                          width="243" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title"><%= item.productData.name %></h5>
-                        <p class="card-text"><%= item.productData.description %></p>
-                        <p class="card-text"><%= item.productData.price %> $</p>
-                        <p class="card-text">Quantity : <%= item.qty %> </p>
+                        <h5 class="card-title"><%= item.productId.name %></h5>
+                        <p class="card-text"><%= item.productId.description %></p>
+                        <p class="card-text"><%= item.productId.price %> $</p>
+                        <p class="card-text">Quantity : <%= item.quantity %> </p>
                         <form action="/cart/deleteProduct" method="POST">
                             <button class="btn btn-danger" type="submit" name="deleteCartProduct">Delete</button>
-                            <input type="hidden" name="productID" value="<%= item.productData.id %>">
+                            <input type="hidden" name="productID" value="<%= item.productId._id %>">
                         </form>
                     </div>
                 </div>
