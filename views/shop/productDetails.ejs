@@ -4,7 +4,7 @@
 <body>
 
 <!-- navbar -->
-<%- include('../includes/navbar.ejs') %>
+<%- include('../includes/navbar.ejs',{isAuthenticated:isAuthenticated}) %>
 
 <main class="m-5">
     <div class="card offset-4 col-4 text-center">
@@ -15,12 +15,15 @@
             <h5 class="card-title"><%= product.name %></h5>
             <p class="card-text"><%= product.description %></p>
             <p class="card-text"><%= product.price %> $</p>
-            <form action="/addToCart" method="POST">
-                <button type="submit" class="btn btn-danger">Add to cart</button>
-                <input type="hidden" name="productID" value="<%= product._id %>">
-                <input type="hidden" name="price" value="<%= product.price %>">
-            </form>
 
+            <% if (isAuthenticated) { %>
+                <form action="/addToCart" method="POST">
+                    <button type="submit" class="btn btn-danger">Add to cart</button>
+                    <input type="hidden" name="productID" value="<%= product._id %>">
+                    <input type="hidden" name="price" value="<%= product.price %>">
+                </form>
+
+            <% } %>
         </div>
     </div>
 </main>

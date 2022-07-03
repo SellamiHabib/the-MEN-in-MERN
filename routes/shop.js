@@ -5,10 +5,10 @@ const adminController = require("../controllers/adminController");
 const router = express.Router();
 
 router.get('/', shopController.getShopPage);
+router.get('/products', shopController.getProductsPage);
 
 router.get('/products/:id', shopController.getProductDetailsPage);
 
-router.get('/products', shopController.getProductsPage);
 
 router.get('/cart', shopController.getCartPage);
 

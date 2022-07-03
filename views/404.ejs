@@ -4,7 +4,7 @@
 <body >
 
     <!-- navbar -->
-    <%- include('./includes/navbar.ejs') %>
+    <%- include('./includes/navbar.ejs',{isAuthenticated:isAuthenticated}) %>
     <main class="m-5">
         <h1>Error</h1>
         <p>The page you're looking for doesn't exist.</p>

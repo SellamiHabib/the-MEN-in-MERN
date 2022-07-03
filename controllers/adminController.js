@@ -10,6 +10,7 @@ module.exports.getAdminProductsPage = (req, res) => {
                 title: 'Admin Products',
                 path: '/admin/adminProducts',
                 products: products,
+                isAuthenticated: req.session.isAuthenticated
             })
         })
         .catch(err => console.log(err))
@@ -17,7 +18,8 @@ module.exports.getAdminProductsPage = (req, res) => {
 module.exports.getAddProductPage = (req, res) => {
     res.render('admin/addProduct', {
         title: 'Add a product',
-        path: '/admin/addProduct'
+        path: '/admin/addProduct',
+        isAuthenticated: req.session.isAuthenticated
     })
 }
 module.exports.postAddProductPage = (req, res) => {
@@ -47,7 +49,8 @@ module.exports.getEditProductPage = (req, res) => {
             res.render('admin/editProduct', {
                 title: product.name,
                 path: '/admin/editProduct',
-                product: product
+                product: product,
+                isAuthenticated: req.session.isAuthenticated
             })
         })
         .catch(err => console.log(err))

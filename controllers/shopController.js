@@ -7,13 +7,15 @@ module.exports.getShopPage = (req, res) => {
             if (products.length === 0) {
                 return res.render('404', {
                     title: "No products found",
-                    path: '/'
+                    path: '/',
+                    isAuthenticated: req.session.isAuthenticated
                 });
             }
             res.render('shop/index', {
                 products: products,
                 title: "Product List",
-                path: '/'
+                path: '/',
+                isAuthenticated: req.session.isAuthenticated
             })
         })
         .catch(err => console.log(err))
@@ -25,7 +27,8 @@ module.exports.getProductsPage = (req, res) => {
             res.render('shop/listProducts', {
                 products: products,
                 title: 'List of products',
-                path: '/products'
+                path: '/products',
+                isAuthenticated:req.session.isAuthenticated
             })
         })
         .catch(err => console.log(err))
@@ -33,6 +36,7 @@ module.exports.getProductsPage = (req, res) => {
 
 module.exports.getProductDetailsPage = (req, res) => {
     const productID = req.params.id;
+    console.log(req.params)
     Product.findById(productID)
         .then(product => {
             if (!product) {
@@ -42,6 +46,7 @@ module.exports.getProductDetailsPage = (req, res) => {
                 title: product.name,
                 path: '/products',
                 product: product,
+                isAuthenticated:req.session.isAuthenticated
             });
         })
         .catch(err => console.log(err))
@@ -56,11 +61,11 @@ module.exports.getCartPage = (req, res) => {
                 title: 'cart',
                 path: '/cart',
                 cart: cartProducts,
+                isAuthenticated:req.session.isAuthenticated
             })
         })
         .catch(err => console.log(err));
 }
-
 
 module.exports.postAddToCartPage = (req, res) => {
     const productID = req.body.productID;
@@ -79,9 +84,3 @@ module.exports.postDeleteCartProduct = (req, res) => {
         .catch(err => console.log(err));
 
 }
-// module.exports.getCheckoutPage = (req, res) => {
-//     res.render('shop/checkout', {
-//         title: 'Checkout',
-//         path: '/checkout',
-//         // cart: cart,
-//     })

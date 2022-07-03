@@ -4,7 +4,7 @@
 <body>
 
 <!-- navbar -->
-<%- include('../includes/navbar.ejs') %>
+<%- include('../includes/navbar.ejs',{isAuthenticated:isAuthenticated}) %>
 <main class="m-5">
     <form action="/admin/editProduct" method="POST">
         <div class="form-group m-4">
