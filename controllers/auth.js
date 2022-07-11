@@ -1,8 +1,10 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const nodemailer = require("nodemailer")
-const mg = require("nodemailer-mailgun-transport")
+const mg = require("nodemailer-mailgun-transport");
 const crypto = require('node:crypto');
+const {body, validationResult} = require("express-validator/check");
+const StatusCodes = require('http-status-codes');
 
 const mailgunAuth = {
     auth: {
@@ -15,9 +17,10 @@ const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
 const sendEmail = (to, subject, htmlToSend) => {
 
     const mailOptions = {
-        from: "test@learning-express-test.com",
+        from: "Support@learning-express-test.com",
         to: to,
         subject: subject,
+        name: 'Learning-Express',
         html: htmlToSend
     };
     smtpTransport.sendMail(mailOptions, function (error, response) {
@@ -25,18 +28,11 @@ const sendEmail = (to, subject, htmlToSend) => {
             console.log(error);
     });
 }
+
 exports.getLogin = (req, res, next) => {
     res.render('auth/login', {
         path: '/login',
-        pageTitle: 'Login',
-    });
-};
-
-exports.getSignup = (req, res, next) => {
-
-    res.render('auth/signup', {
-        path: '/signup',
-        pageTitle: 'Signup',
+        pageTitle: 'Login'
     });
 };
 
@@ -66,42 +62,68 @@ exports.postLogin = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
+exports.getSignup = (req, res, next) => {
+
+    res.render('auth/signup', {
+        path: '/signup',
+        pageTitle: 'Signup',
+        oldValues: {
+            email: "",
+            password: "",
+            confirmPassword: ""
+        },
+        errors: []
+    });
+};
+
 exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    User.findOne({email: email})
-        .then(user => {
-            if (user) {
-                req.flash('error', 'The email you provided already exists, please login');
-                return res.redirect('/login');
-            }
-            const htmlToSend = `
+    const confirmPassword = req.body.confirmPassword;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res
+            .status(StatusCodes.UNPROCESSABLE_ENTITY) //http 422
+            .render('auth/signup', {
+                path: '/signup',
+                pageTitle: 'Signup',
+                oldValues: {
+                    email: email,
+                    password: password,
+                    confirmPassword: confirmPassword
+                },
+                errors: errors.array()
+            })
+    }
+    const htmlToSend = `
                         <h1>You successfully created an account in your website, hurray!</h1>
                         <p>Your password is : ${password}</p>
                         `
-            const mailOptions = {
-                from: "test@learning-express-test.com",
-                to: "hbib.sellami7@gmail.com",
-                subject: "Account cedentials",
-                text: 'and easy to do anywhere, even with Node.js',
-                html: htmlToSend
-            }
-            smtpTransport.sendMail(mailOptions, function (error, response) {
-                if (error)
-                    console.log(error);
-            })
+    const mailOptions = {
+        from: "test@learning-express-test.com",
+        to: "hbib.sellami7@gmail.com",
+        subject: "Account cedentials",
+        text: 'and easy to do anywhere, even with Node.js',
+        html: htmlToSend
+    }
+    smtpTransport.sendMail(mailOptions, function (error, response) {
+        if (error)
+            console.log(error);
+    })
 
-            bcrypt.hash(password, 12)
-                .then(hashedPassword => {
-                    const newUser = new User({email: email, password: hashedPassword, cart: {items: []}});
-                    return newUser.save();
-                })
-                .then(result => {
-                    res.redirect('/');
-                })
+    bcrypt.hash(password, 12)
+        .then(hashedPassword => {
+            const newUser = new User({email: email, password: hashedPassword, cart: {items: []}});
+            return newUser.save();
         })
-
+        .then(() => {
+            res.redirect('/');
+        })
 };
+
+
 
 exports.getReset = (req, res, next) => {
     res.render('auth/reset', {
@@ -168,19 +190,19 @@ exports.postNewPasswordReset = (req, res, next) => {
                 return res.redirect('/login');
             }
             let resetUser = user;
-            bcrypt.hash(newPassword, 12)
+            return bcrypt.hash(newPassword, 12)
                 .then
                 (hashedPassword => {
                         resetUser.password = hashedPassword;
                         resetUser.resetToken = undefined;
                         resetUser.resetTokenExpiration = undefined;
                         req.flash('success', 'Your password has successfully been changed, please login.');
+
                         return resetUser.save();
                     }
                 );
-        }).then(() => {
-        res.redirect('/login');
-    })
+        })
+        .then(() => res.redirect('/login'))
         .catch(err => console.log(err))
 }
 
