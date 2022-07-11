@@ -1,75 +1,84 @@
-const express = require('express');
 const path = require('path');
-const mongoose = require('mongoose')
-const User = require('./models/User');
+
+const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const flash = require('connect-flash');
+require('dotenv').config();
 
-const adminRoutes = require('./routes/admin');
-const userRoutes = require('./routes/shop');
-const errorController = require('./controllers/errors');
-const authRoutes = require('./routes/auth');
+const errorController = require('./controllers/error');
+const User = require('./models/user');
+
+const MONGODB_URI =
+    'mongodb+srv://hbib:0000@cluster0.hiyii.mongodb.net/test';
 
 const app = express();
-const port = 3000;
-const MongodbURI = 'mongodb+srv://MEN:KcGwAL4D8WThu57@cluster0.hiyii.mongodb.net/?retryWrites=true&w=majority';
-
-app.set('view engine', 'ejs');
-app.set('views', 'views')
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(bodyParser.urlencoded({
-    extended: false
-}))
-
 const store = new MongoDBStore({
-    uri: MongodbURI,
-    collection: 'sessions'
+    uri: MONGODB_URI,
+    collection: 'sessions',
+
 });
 
+app.set('view engine', 'ejs');
+app.set('views', 'views');
+
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(
-    session({secret: 'long string value', resave: false, saveUninitialized: false, store: store})
-)
+    session({
+        secret: 'my secret',
+        resave: false,
+        saveUninitialized: false,
+        store: store
+    })
+);
+app.use(flash());
+
 app.use((req, res, next) => {
-    if (!req.session.user)
-        next();
-    else {
-        User.findById(req.session.user._id)
-            .then(user => {
-                req.user = user;
-                next();
-            })
-            .catch(err => console.log(err))
+    if (!req.session.user) {
+        return next();
     }
-})
+    User.findById(req.session.user._id)
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
+
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    let errorMessage = req.flash('error');
+    if (errorMessage !== undefined)
+        res.locals.errorMessage = errorMessage[0];
+    else
+        res.locals.errorMessage = null;
+    let successMessage = req.flash('success');
+    if (successMessage[0] !== undefined) {
+        res.locals.successMessage = successMessage[0];
+    } else
+        res.locals.successMessage = null;
+
+    return next();
+});
+
 app.use('/admin', adminRoutes);
-app.use(userRoutes);
+app.use(shopRoutes);
 app.use(authRoutes);
-app.use(errorController.get404Page);
+
+app.use(errorController.get404);
 
 mongoose
-    .connect(MongodbURI)
-    .then(() => {
-        User
-            .findOne()
-            .then((user) => {
-                if (!user) {
-                    const user = new User({
-                        name: 'Habib',
-                        email: 'Habib@test.com',
-                        cart: {items: []}
-                    })
-                    return user.save();
-                }
-            })
-            .catch(err => console.log(err));
+    .connect(MONGODB_URI, {useNewUrlParser: true})
+    .then(result => {
+        app.listen(3000);
     })
-    .then(() => {
-        app.listen(port);
-        console.log("Server started!");
-    })
-    .catch(err => console.log(err));
-
-
+    .catch(err => {
+        console.log(err);
+    });

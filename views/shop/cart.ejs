@@ -1,29 +1,32 @@
 <%- include('../includes/head.ejs') %>
-</head>
-<body>
-<!-- navbar -->
-<%- include('../includes/navbar.ejs',{isAuthenticated:isAuthenticated}) %>
-<main class="m-5 row ">
-    <% if (cart.length === 0)  { %>
-        <h1>Your cart is empty, start shopping!</h1>
-    <% } else { %>
-            <% cart.forEach(item => { %>
-                <div class="card col-4 text-center">
-                    <img class="card-img-top" src="<%= item.imageURL %>"
-                         height="180"
-                         width="243" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title"><%= item.productId.name %></h5>
-                        <p class="card-text"><%= item.productId.description %></p>
-                        <p class="card-text"><%= item.productId.price %> $</p>
-                        <p class="card-text">Quantity : <%= item.quantity %> </p>
-                        <form action="/cart/deleteProduct" method="POST">
-                            <button class="btn btn-danger" type="submit" name="deleteCartProduct">Delete</button>
-                            <input type="hidden" name="productID" value="<%= item.productId._id %>">
-                        </form>
-                    </div>
+    <link rel="stylesheet" href="/css/cart.css">
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <main>
+            <% if (products.length > 0) { %>
+                <ul class="cart__item-list">
+                    <% products.forEach(p => { %>
+                        <li class="cart__item">
+                            <h1><%= p.productId.title %></h1>
+                            <h2>Quantity: <%= p.quantity %></h2>
+                            <form action="/cart-delete-item" method="POST">
+                                <input type="hidden" value="<%= p.productId._id %>" name="productId">
+                                <button class="btn danger" type="submit">Delete</button>
+                            </form>
+                        </li>
+                    <% }) %>
+                </ul>
+                <hr>
+                <div class="centered">
+                    <form action="/create-order" method="POST">
+                        <button type="submit" class="btn">Order Now!</button>
+                    </form>
                 </div>
-        </div>
-    <% } )} %>
-</main>
-<%- include('../includes/end.ejs') %>
+                
+            <% } else { %>
+                <h1>No Products in Cart!</h1>
+            <% } %>
+        </main>
+        <%- include('../includes/end.ejs') %>

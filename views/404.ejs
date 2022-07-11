@@ -1,12 +1,8 @@
-<%- include('./includes/head.ejs') %>
+<%- include('includes/head.ejs') %>
 </head>
 
-<body >
+<body>
+    <%- include('includes/navigation.ejs') %>
+    <h1>Page Not Found!</h1>
 
-    <!-- navbar -->
-    <%- include('./includes/navbar.ejs',{isAuthenticated:isAuthenticated}) %>
-    <main class="m-5">
-        <h1>Error</h1>
-        <p>The page you're looking for doesn't exist.</p>
-    </main>
-    <%- include('./includes/end.ejs') %>
+<%- include('includes/end.ejs') %>
