@@ -8,22 +8,20 @@
 
 <main>
     <%- include('../includes/flashs.ejs') %>
-    <ul class="list-unstyled">
-        <% errors.forEach(e => { %>
-            <li class="alert alert-danger">  <%= e.msg %> </li>
-        <% }); %>
-    </ul>
+    <%- include('../includes/errors.ejs') %>
+
     <form class="form-group login-form" action="/signup" method="POST" novalidate>
-            <label  for="email">E-Mail</label>
-            <input class="form-control" type="email" name="email" id="email" value="<%=oldValues.email%>">
+        <label for="email">E-Mail</label>
+        <input class="form-control" type="email" name="email" id="email" value="<%= oldValues.email %>">
 
 
-            <label for="password">Password</label>
-            <input class="form-control" type="password" name="password" id="password" value="<%=oldValues.password%>">
+        <label for="password">Password</label>
+        <input class="form-control" type="password" name="password" id="password" value="<%= oldValues.password %>">
 
 
-            <label for="confirmPassword">Confirm Password</label>
-            <input class="form-control" type="password" name="confirmPassword" id="confirmPassword"value="<%=oldValues.confirmPassword%>">
+        <label for="confirmPassword">Confirm Password</label>
+        <input class="form-control" type="password" name="confirmPassword" id="confirmPassword"
+               value="<%= oldValues.confirmPassword %>">
 
         <button class="btn btn-primary" type="submit">Signup</button>
     </form>

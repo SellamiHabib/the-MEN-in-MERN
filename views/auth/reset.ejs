@@ -8,12 +8,14 @@
 
 <main>
     <%- include('../includes/flashs.ejs') %>
+    <%- include('../includes/errors.ejs') %>
+
     <form class="login-form" action="/reset" method="POST">
         <div class="form-control">
             <label for="email">E-Mail</label>
-            <input type="email" name="email" id="email">
+            <input type="email" name="email" id="email" value="<%= oldValues.email %>">
         </div>
-        <button class="btn" type="submit">Send reset email</button>
+        <button class="btn btn-primary" type="submit">Send reset email</button>
     </form>
 </main>
 <%- include('../includes/end.ejs') %>

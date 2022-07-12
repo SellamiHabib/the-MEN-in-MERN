@@ -4,12 +4,12 @@ const nodemailer = require("nodemailer")
 const mg = require("nodemailer-mailgun-transport");
 const crypto = require('node:crypto');
 const {body, validationResult} = require("express-validator/check");
-const StatusCodes = require('http-status-codes');
+const statusCodes = require('http-status-codes');
 
 const mailgunAuth = {
     auth: {
         apiKey: process.env.MAILGUN_API_KEY,
-        domain: "sandboxd19b940ccf964ad8a475037f17a28e04.mailgun.org"
+        domain: process.env.MAILGUN_DOMAIN
     },
 }
 
@@ -32,34 +32,32 @@ const sendEmail = (to, subject, htmlToSend) => {
 exports.getLogin = (req, res, next) => {
     res.render('auth/login', {
         path: '/login',
-        pageTitle: 'Login'
+        pageTitle: 'Login',
+        oldValues: {
+            email: "",
+            password: "",
+        },
+        errors: []
     });
 };
 
 exports.postLogin = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    User.findOne({email: email})
-        .then(user => {
-            if (!user) {
-                req.flash('error', 'Please verify your email and password and try again.');
-                return res.redirect('/login');
-            }
-            bcrypt.compare(password, user.password)
-                .then(isMatched => {
-                    if (!isMatched) {
-                        req.flash('error', 'Please verify your email and password and try again.');
-                        return res.redirect('/login');
-                    }
-                    req.session.isLoggedIn = true;
-                    req.session.user = user;
-                    req.session.save(err => {
-                        console.log(err);
-                        return res.redirect('/');
-                    });
-                })
-        })
-        .catch(err => console.log(err));
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            oldValues: {
+                email: email,
+                password: password,
+            },
+            errors: errors.array()
+        });
+    }
+    req.session.isLoggedIn = true;
+    return res.redirect('/');
 };
 
 exports.getSignup = (req, res, next) => {
@@ -85,7 +83,7 @@ exports.postSignup = (req, res, next) => {
 
     if (!errors.isEmpty()) {
         return res
-            .status(StatusCodes.UNPROCESSABLE_ENTITY) //http 422
+            .status(statusCodes.UNPROCESSABLE_ENTITY) //http 422
             .render('auth/signup', {
                 path: '/signup',
                 pageTitle: 'Signup',
@@ -124,16 +122,30 @@ exports.postSignup = (req, res, next) => {
 };
 
 
-
 exports.getReset = (req, res, next) => {
     res.render('auth/reset', {
         path: '/reset',
         pageTitle: 'Reset Password',
+        errors: [],
+        oldValues: {
+            email: ""
+        }
     })
 }
 exports.postReset = (req, res, next) => {
     const email = req.body.email;
     let token = "";
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res
+            .status(statusCodes.BAD_REQUEST)
+            .render('auth/reset', {
+                path: '/reset',
+                pageTitle: 'Reset Password',
+                errors: errors.array(),
+                oldValues: email
+            });
+    }
     crypto.randomBytes(32, (err, buffer) => {
         if (err) {
             console.log(err);
@@ -143,13 +155,10 @@ exports.postReset = (req, res, next) => {
     })
     User.findOne({email: email})
         .then(user => {
-            if (!user) {
-                req.flash('error', 'The email you entered doesnt have an account');
-                return res.redirect('/reset');
-            }
             user.resetToken = token;
             user.resetTokenExpiration = Date.now() + 3600000;
-            return user.save()
+            return user
+                .save()
                 .then(() => {
                         const htmlToSend = `
                 <h1>You requested a password reset</h1>
@@ -167,6 +176,7 @@ exports.postReset = (req, res, next) => {
                         res.redirect('/login');
                     }
                 )
+                .catch(err => console.log(err))
 
         })
         .catch(err => console.log(err));
@@ -176,31 +186,38 @@ exports.getNewPasswordReset = (req, res, next) => {
     return res.render('auth/newPasswordReset.ejs', {
         path: '/reset',
         pageTitle: 'Enter your new password',
-        token: token
+        token: token,
+        errors: []
     })
 }
 exports.postNewPasswordReset = (req, res, next) => {
-    const token = req.body.token;
-    const newPassword = req.body.password;
 
-    User.findOne({resetToken: token, resetTokenExpiration: {$gt: Date.now()}})
-        .then(user => {
-            if (!user) {
-                req.flash('error', 'The link you entered is invalid or expired');
-                return res.redirect('/login');
-            }
-            let resetUser = user;
-            return bcrypt.hash(newPassword, 12)
-                .then
-                (hashedPassword => {
-                        resetUser.password = hashedPassword;
-                        resetUser.resetToken = undefined;
-                        resetUser.resetTokenExpiration = undefined;
-                        req.flash('success', 'Your password has successfully been changed, please login.');
+    const token = req.token;
+    const newPassword = req.newPassword;
+    const resetUser = req.user;
+    const errors = validationResult(req);
 
-                        return resetUser.save();
-                    }
-                );
+    if (!errors.isEmpty()) {
+        return res
+            .status(statusCodes.BAD_REQUEST)
+            .render('auth/newPasswordReset', {
+                path: '/new-password',
+                pageTitle: 'Reset Password',
+                token:token,
+                errors: errors.array(),
+                oldValues: {
+                    email: ""
+                }
+            });
+    }
+
+    return bcrypt.hash(newPassword, 12)
+        .then(hashedPassword => {
+            resetUser.password = hashedPassword;
+            resetUser.resetToken = undefined;
+            resetUser.resetTokenExpiration = undefined;
+            req.flash('success', 'Your password has successfully been changed, please login.');
+            return resetUser.save();
         })
         .then(() => res.redirect('/login'))
         .catch(err => console.log(err))
