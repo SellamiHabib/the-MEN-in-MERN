@@ -78,3 +78,8 @@ exports.newPasswordResetValidator = [
                 })
         })
 ]
+exports.editProductInputValidator = [
+    body('title', 'Please enter a valid title').isString().trim(),
+    body('price', 'Please enter a valid price').isFloat(),
+    body('description', 'Please enter a valid description').isString().isLength({min: 5}),
+]
