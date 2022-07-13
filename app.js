@@ -1,6 +1,8 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const multer = require('multer');
+
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
@@ -20,8 +22,35 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, 'images'));
+    },
+    filename: function (req, file, cb) {
+        const uniquePrefix = Date.now();
+        cb(null, uniquePrefix + '-' + file.originalname);
+    }
+})
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg')
+        cb(null, true);
+    else
+        cb(null, false);
+}
+
 app.use(bodyParser.urlencoded({extended: false}));
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter
+});
+app.use(
+    upload.single('image')
+)
+
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'images')));
+
 app.use(express.static(__dirname + '/node_modules/bootstrap/dist'));
 
 app.use(flash());

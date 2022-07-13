@@ -3,7 +3,7 @@ const User = require('../models/user');
 const nodemailer = require("nodemailer")
 const mg = require("nodemailer-mailgun-transport");
 const crypto = require('node:crypto');
-const {body, validationResult} = require("express-validator/check");
+const {body, validationResult} = require("express-validator");
 const statusCodes = require('http-status-codes');
 
 const mailgunAuth = {

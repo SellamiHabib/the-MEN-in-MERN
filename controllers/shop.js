@@ -1,5 +1,9 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require("mongoose");
+const PDFDocument = require('pdfkit');
 
 exports.getProducts = (req, res, next) => {
     Product.find()
@@ -98,7 +102,7 @@ exports.postOrder = (req, res, next) => {
             });
             const order = new Order({
                 user: {
-                    name: req.user.name,
+                    name: req.user.email,
                     userId: req.user
                 },
                 products: products
@@ -129,3 +133,46 @@ exports.getOrders = (req, res, next) => {
             next(new Error(err));
         });
 };
+exports.getInvoice = (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.orderId)) {
+        return next(new Error('Requested page is not valid'));
+    }
+    const invoiceId = mongoose.Types.ObjectId(req.params.orderId);
+    const invoiceName = "invoice - " + invoiceId + ".pdf";
+    const invoicePath = path.join('data', 'invoices', invoiceName);
+
+    Order.findOne({'user.userId': req.user._id, _id: invoiceId})
+        .then(order => {
+            if (!order) {
+                return next(new Error('Unauthorized'));
+            }
+            const invoicePdf = new PDFDocument();
+            const file = fs.createWriteStream(invoicePath);
+            invoicePdf.pipe(res);
+            invoicePdf.pipe(file);
+            invoicePdf
+                .fontSize(24)
+                .text("Invoice id : " + invoiceId, {underline: true})
+            invoicePdf.text('-----------------------------');
+            let totalPrice = 0;
+            order.products.forEach(product => {
+                invoicePdf
+                    .fontSize(16)
+                    .text(product.product.title + ' | ' + product.quantity + ' x ' + product.product.price);
+                invoicePdf.text('--------------------');
+                totalPrice += product.quantity * product.product.price;
+            })
+            invoicePdf
+                .fontSize(24)
+                .text('Total price: ' + totalPrice + '$');
+            invoicePdf.end();
+            return res
+                .setHeader('Content-Type', 'application/pdf')
+                .setHeader('Content-Disposition', 'inline')
+                .setHeader('filename', invoiceName)
+        })
+        .catch(err => {
+            return next(new Error(err));
+        })
+
+}

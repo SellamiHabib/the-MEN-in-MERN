@@ -1,3 +1,11 @@
 const path = require('path');
+const fs = require('fs');
 
-module.exports = path.dirname(process.mainModule.filename);
+exports.path = path.dirname(process.mainModule.filename);
+
+exports.deleteFile = (filePath) => {
+    fs.unlink(filePath, err => {
+        if (err)
+            throw err;
+    })
+}
