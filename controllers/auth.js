@@ -176,7 +176,9 @@ exports.postReset = (req, res, next) => {
                         res.redirect('/login');
                     }
                 )
-                .catch(err => console.log(err))
+                .catch(err => {
+                    next(new Error(err));
+                });
 
         })
         .catch(err => console.log(err));
@@ -203,7 +205,7 @@ exports.postNewPasswordReset = (req, res, next) => {
             .render('auth/newPasswordReset', {
                 path: '/new-password',
                 pageTitle: 'Reset Password',
-                token:token,
+                token: token,
                 errors: errors.array(),
                 oldValues: {
                     email: ""
@@ -220,13 +222,16 @@ exports.postNewPasswordReset = (req, res, next) => {
             return resetUser.save();
         })
         .then(() => res.redirect('/login'))
-        .catch(err => console.log(err))
+        .catch(err => {
+            next(new Error(err));
+        });
 }
 
 
 exports.postLogout = (req, res, next) => {
     req.session.destroy(err => {
-        console.log(err);
+        if (err)
+            next(new Error(err));
         res.redirect('/');
     });
 };

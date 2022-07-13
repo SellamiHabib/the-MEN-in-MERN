@@ -59,7 +59,6 @@ exports.resetValidator = [
                     if (!user) {
                         return Promise.reject('The email you entered doesn\'t have an account');
                     }
-
                 })
         })
 ]

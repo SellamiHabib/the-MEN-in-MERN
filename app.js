@@ -15,8 +15,8 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
-const app = express();
 
+const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
@@ -26,7 +26,7 @@ app.use(express.static(__dirname + '/node_modules/bootstrap/dist'));
 
 app.use(flash());
 
-const MONGODB_URI =process.env.MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI
 const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection: 'sessions',
@@ -70,12 +70,12 @@ app.use((req, res, next) => {
 });
 
 
-
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
 app.use(errorController.get404);
+app.use(errorController.get500);
 
 mongoose
     .connect(MONGODB_URI, {useNewUrlParser: true})
