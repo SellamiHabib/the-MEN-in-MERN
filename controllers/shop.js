@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require("mongoose");
 const PDFDocument = require('pdfkit');
+const axios = require('axios').default;
+const crypto = require('node:crypto');
 
 exports.getProducts = (req, res, next) => {
     Product.find()
@@ -173,6 +175,45 @@ exports.getInvoice = (req, res, next) => {
         })
         .catch(err => {
             return next(new Error(err));
+        })
+
+}
+exports.getCheckout = (req, res, next) => {
+    let orderId = req.params.orderId;
+    let totalPrice = 0;
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return next(new Error('Requested page is not valid'));
+    }
+    orderId = mongoose.Types.ObjectId(orderId);
+    Order.findOne({'user.userId': req.user._id, _id: orderId})
+        .then(order => {
+            if (!order)
+                return next(new Error('Unauthorized'));
+            order.products.forEach(product => totalPrice += product.quantity * product.product.price);
+            return Promise.resolve(totalPrice);
+        })
+        .then(totalPrice => {
+
+            const paymentData = {
+                "app_token": process.env.FLOUCI_PUBLIC_TOKEN,
+                "app_secret": process.env.FLOUCI_SECRET_TOKEN,
+                "amount": totalPrice * 1000, //millimes
+                "accept_card": "true",
+                "session_timeout_secs": 1200,
+                "success_link": "http://localhost:3000/orders",
+                "fail_link": "https://localhost:3000/500",
+                "developer_tracking_id": 'cffbb74f-596b-407f-abc6-cfee93a331b0'
+            }
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+            axios.post('https://developers.flouci.com/api/generate_payment', paymentData, config)
+                .then(result => {
+                    res.redirect(result.data.result.link);
+                })
+                .catch(err => console.log(err))
         })
 
 }

@@ -12,12 +12,15 @@
             <% orders.forEach(order => { %>
                 <li class="orders__item">
                     <h1>Order - # <%= order._id %></h1>
-                    <ul class="orders__products">
-                        <% order.products.forEach(p => { %>
-                            <li class="orders__products-item"><%= p.product.title %> (<%= p.quantity %>)
-                                <a href="/orders/<%= order._id %>">Invoice</a></li>
+                    <a href="/orders/<%= order._id %>">Invoice </a>
+                    <a href="/checkout/<%= order._id %>">Proceed to checkout</a>
+                </li>
+
+                <ul class="orders__products">
+                    <% order.products.forEach(p => { %>
+                    <li class="orders__products-item"><%= p.product.title %> (<%= p.quantity %>)
                         <% }); %>
-                    </ul>
+                </ul>
                 </li>
             <% }); %>
         </ul>
