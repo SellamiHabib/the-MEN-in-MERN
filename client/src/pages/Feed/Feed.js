@@ -112,7 +112,8 @@ class Feed extends Component {
         let url = 'http://localhost:5000/feed/posts';
         let method = 'POST';
         if (this.state.editPost) {
-            url = 'URL';
+            url = 'http://localhost:5000/feed/posts/' + this.state.editPost._id;
+            method = 'PUT';
         }
 
         fetch(url, {
@@ -126,6 +127,7 @@ class Feed extends Component {
                 return res.json();
             })
             .then(resData => {
+                console.log(resData);
                 const post = {
                     _id: resData.post._id,
                     title: resData.post.title,
@@ -144,6 +146,7 @@ class Feed extends Component {
                     } else if (prevState.posts.length < 2) {
                         updatedPosts = prevState.posts.concat(post);
                     }
+
                     return {
                         posts: updatedPosts,
                         isEditing: false,
@@ -169,7 +172,7 @@ class Feed extends Component {
 
     deletePostHandler = postId => {
         this.setState({postsLoading: true});
-        fetch('URL')
+        fetch('http://localhost:5000/feed/posts/' + postId, {method: 'DELETE'})
             .then(res => {
                 if (res.status !== 200 && res.status !== 201) {
                     throw new Error('Deleting a post failed!');

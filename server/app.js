@@ -7,14 +7,13 @@ const multer = require("multer");
 
 const app = express();
 
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(express.static(path.join(__dirname, 'images')));
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', "*")
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'content-type')
+    res.setHeader('Access-Control-Allow-Origin', "*");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'content-type');
     next();
 })
-// app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json({limit: '10mb'}));
 
 const storage = multer.diskStorage({
@@ -38,7 +37,6 @@ app.use(
         storage: storage,
         fileFilter: fileFilter
     }).single('image'));
-
 
 app.use('/feed', feedRoutes);
 app.use((error, req, res, next) => {

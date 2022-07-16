@@ -8,5 +8,7 @@ router.get('/posts', feedController.getPosts);
 router.post('/posts', inputValidator.addPostValidator, feedController.postAddPost);
 
 router.get('/posts/:postId', feedController.getOnePost);
+router.put('/posts/:postId', inputValidator.addPostValidator, feedController.editPost);
+router.delete('/posts/:postId', feedController.deletePost);
 
 module.exports = router;

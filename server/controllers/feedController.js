@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const Post = require('../models/post');
 const {validationResult} = require('express-validator');
 
@@ -25,7 +27,6 @@ module.exports.postAddPost = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new Error('Invalid input')
-
         error.statusCode = 422
         error.errors = errors;
         throw error;
@@ -33,18 +34,16 @@ module.exports.postAddPost = (req, res, next) => {
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: 'images/' + imageUrl,
+        imageUrl: imageUrl,
         creator: "Habib",
         author: "Habib",
     })
-    post.save()
+    return post.save()
         .then(() => {
-            res
+            return res
                 .status(201)
                 .json({
-                    _id: post._id,
                     post: post,
-                    message: "Success added post"
                 })
         })
         .catch(err => {
@@ -60,15 +59,81 @@ module.exports.getOnePost = (req, res, next) => {
         .then(post => {
             if (!post) {
                 const error = new Error('Could not find post')
-                error.statusCode = 500;
+                error.statusCode = 404;
                 throw error;
             }
-
             return res.status(200)
                 .json({
                     post: post
                 })
         })
+        .catch(err => {
+            if (!err.statusCode)
+                err.statusCode = 500;
+            next(err);
+        })
+}
+module.exports.editPost = (req, res, next) => {
+    const postId = req.params.postId;
+    const title = req.body.title;
+    const imageUrl = req.file.filename;
+    const content = req.body.content;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new Error('Invalid input')
+        error.statusCode = 422
+        error.errors = errors;
+        throw error;
+    }
+
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                const error = new Error('Could not find post')
+                error.statusCode = 404;
+                throw error;
+            }
+            fs.unlink(path.join(__dirname, '..', 'images', post.imageUrl), err => {
+                if (err) {
+                    const error = new Error('File was not deleted');
+                    error.statusCode = 500;
+                    throw error;
+                }
+            });
+            post.title = title;
+            post.imageUrl = imageUrl;
+            post.content = content;
+            res
+                .status(201)
+                .json({post: post});
+            return post.save();
+        })
+        .then(() => {
+            return res;
+        })
+        .catch(err => {
+            if (!err.statusCode)
+                err.statusCode = 500;
+            next(err);
+        })
+}
+module.exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+    Post.findById(postId)
+        .then(post => {
+            fs.unlink(path.join(__dirname, '..', 'images', post.imageUrl), err => {
+                if (err) {
+                    const error = new Error('File was not deleted');
+                    error.statusCode = 500;
+                    throw error;
+                }
+            })
+
+            return Post.findByIdAndDelete(postId);
+        })
+        .then(() => res.status(201).json({
+            message: 'Post deleted successfully'
+        }))
         .catch(err => {
             if (!err.statusCode)
                 err.statusCode = 500;
