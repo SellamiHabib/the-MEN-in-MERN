@@ -1,48 +1,77 @@
+const Post = require('../models/post');
 const {validationResult} = require('express-validator');
 
 module.exports.getPosts = (req, res, next) => {
-    res
-        .status(200)
-        .json({
-            posts: [
-                {
-                    _id: '1',
-                    title: 'Dummy title',
-                    author: 'Dummy auther',
-                    imageUrl: 'Rabye.jpg',
-                    content: 'Dummy content',
-                    creator: {
-                        name: "Habib"
-                    },
-                    createdAt: Date.now()
-                }
-            ]
+
+    Post.find()
+        .then(posts => {
+            if (!posts) {
+                posts = [];
+            }
+            res
+                .status(200)
+                .json({
+                    posts: posts,
+                    message: "Posts fetched successfully"
+                })
         })
+
 }
 
 module.exports.postAddPost = (req, res, next) => {
+    const imageUrl = req.file.filename;
     const title = req.body.title;
     const content = req.body.content;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(422)
-            .json({
-                message: 'Validaion failed',
-                errors: errors.array()
-            })
-    }
+        const error = new Error('Invalid input')
 
-    const post = {
-        message: 'Successfully created the post',
-        _id: '1',
+        error.statusCode = 422
+        error.errors = errors;
+        throw error;
+    }
+    const post = new Post({
         title: title,
         content: content,
+        imageUrl: 'images/' + imageUrl,
         creator: "Habib",
-        createdAt: Date.now()
-    }
-    res
-        .status(201)
-        .json({
-            post: post
+        author: "Habib",
+    })
+    post.save()
+        .then(() => {
+            res
+                .status(201)
+                .json({
+                    _id: post._id,
+                    post: post,
+                    message: "Success added post"
+                })
+        })
+        .catch(err => {
+            if (!err.statusCode)
+                err.statusCode = 404;
+            next(err);
+        })
+
+}
+module.exports.getOnePost = (req, res, next) => {
+    const postId = req.params.postId;
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                const error = new Error('Could not find post')
+                error.statusCode = 500;
+                throw error;
+            }
+
+            return res.status(200)
+                .json({
+                    post: post
+                })
+        })
+        .catch(err => {
+            if (!err.statusCode)
+                err.statusCode = 500;
+            next(err);
         })
 }
