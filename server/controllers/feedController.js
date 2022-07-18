@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const Post = require('../models/post');
+const Post = require('../models/post')
+
 const {validationResult} = require('express-validator');
 
 module.exports.getPosts = (req, res, next) => {
