@@ -134,14 +134,12 @@ class Feed extends Component {
                 return res.json();
             })
             .then(resData => {
-
-                console.log(resData);
                 const post = {
                     _id: resData.post._id,
                     title: resData.post.title,
                     content: resData.post.content,
                     imageUrl: resData.post.imageUrl,
-                    creator: resData.post.creator,
+                    creator: resData.creator,
                     createdAt: resData.post.createdAt
                 };
                 this.setState(prevState => {
@@ -152,7 +150,7 @@ class Feed extends Component {
                             p => p._id === prevState.editPost._id
                         );
                         updatedPosts[postIndex] = post;
-                    } else if (prevState.posts.length < 2) {
+                    } else {
                         updatedPosts = prevState.posts.concat(post);
                     }
 
@@ -165,7 +163,6 @@ class Feed extends Component {
                 });
             })
             .catch(err => {
-                console.log(err);
                 this.setState({
                     isEditing: false,
                     editPost: null,

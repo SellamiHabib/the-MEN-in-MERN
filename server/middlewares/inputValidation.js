@@ -21,6 +21,7 @@ exports.signupValidator = [
                     if (user) {
                         return Promise.reject('The email you entered is already used.')
                     }
+
                 })
         }),
     body('password', 'Please enter a valid password')
