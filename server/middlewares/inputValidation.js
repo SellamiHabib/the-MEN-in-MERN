@@ -14,16 +14,14 @@ exports.addPostValidator = [
 exports.signupValidator = [
     body('email')
         .isEmail()
-        .withMessage('Please enter a valid email')
         .custom(email => {
-            User
+            return User
                 .findOne({email: email})
                 .then(user => {
                     if (user) {
                         return Promise.reject('The email you entered is already used.')
                     }
                 })
-
         }),
     body('password', 'Please enter a valid password')
         .isString()

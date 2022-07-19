@@ -134,6 +134,7 @@ class Feed extends Component {
                 return res.json();
             })
             .then(resData => {
+
                 console.log(resData);
                 const post = {
                     _id: resData.post._id,
@@ -144,6 +145,7 @@ class Feed extends Component {
                     createdAt: resData.post.createdAt
                 };
                 this.setState(prevState => {
+
                     let updatedPosts = [...prevState.posts];
                     if (prevState.editPost) {
                         const postIndex = prevState.posts.findIndex(

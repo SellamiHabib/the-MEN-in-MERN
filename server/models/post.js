@@ -18,8 +18,9 @@ const postSchema = new mongoose.Schema({
         required: true
     },
     creator: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
     }
 }, {timestamps: true});
 

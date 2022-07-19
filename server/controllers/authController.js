@@ -24,9 +24,7 @@ exports.putSignUp = (req, res, next) => {
                     email: email,
                     password: hashedPassword,
                     name: name,
-                    status: "I am new",
                 })
-
             return newUser.save();
         })
         .then(user => {
@@ -37,7 +35,6 @@ exports.putSignUp = (req, res, next) => {
                 })
         })
         .catch(err => {
-
             if (!err.statusCode)
                 err.statusCode = 500;
             const error = new Error('Could not create the account');
@@ -65,7 +62,7 @@ exports.postLogin = (req, res, next) => {
                     }
                     const jwtToken = jwt.sign({
                             email: fetchedUser.email,
-                            password: fetchedUser.password
+                            userId: fetchedUser._id
                         },
                         process.env.TOKEN_SECRET,
                         {expiresIn: '1800s'});

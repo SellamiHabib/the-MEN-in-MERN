@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Post = require('../models/post')
-
+const User = require('../models/user');
 const {validationResult} = require('express-validator');
 
 module.exports.getPosts = (req, res, next) => {
@@ -32,19 +32,34 @@ module.exports.postAddPost = (req, res, next) => {
         error.errors = errors;
         throw error;
     }
+    console.log(req.userId);
     const post = new Post({
         title: title,
         content: content,
         imageUrl: imageUrl,
-        creator: "Habib",
+        creator: req.userId,
         author: "Habib",
     })
+    console.log(post)
+    let creator;
     return post.save()
+        .then(() => {
+            return User.findById(req.userId);
+        })
+        .then(user => {
+            creator = user;
+            user.posts.push(post);
+            return user.save();
+        })
         .then(() => {
             return res
                 .status(201)
                 .json({
                     post: post,
+                    creator: {
+                        _id: req.userId,
+                        name: creator.name
+                    }
                 })
         })
         .catch(err => {
