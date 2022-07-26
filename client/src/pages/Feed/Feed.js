@@ -8,7 +8,6 @@ import Paginator from '../../components/Paginator/Paginator';
 import Loader from '../../components/Loader/Loader';
 import ErrorHandler from '../../components/ErrorHandler/ErrorHandler';
 import './Feed.css';
-import post from "../../components/Feed/Post/Post";
 
 class Feed extends Component {
     state = {
@@ -36,6 +35,7 @@ class Feed extends Component {
             .catch(this.catchError);
 
         this.loadPosts();
+
     }
 
     loadPosts = direction => {
