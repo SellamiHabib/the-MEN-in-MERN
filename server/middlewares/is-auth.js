@@ -13,7 +13,6 @@ module.exports = (req, res, next) => {
     try {
         decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
     } catch (err) {
-        console.log(err)
         const error = new Error('Failed to verify login');
         error.statusCode = 500;
         throw error;
